@@ -184,11 +184,15 @@ class Solver:
             next_arrival_p, next_arrival_t = self.__find_next_arrival()
             finish_curr_t = curr_t + self.time_left[curr_p]
 
-            if next_arrival_t < finish_curr_t:
+            next_t = min(next_arrival_t, finish_curr_t)
+
+            # Update times
+            dt = next_t - curr_t
+            self.time_left[curr_p] -= dt
+            curr_t += dt
+
+            if next_t == next_arrival_t:
                 # Next event is process arrival
-                dt = next_arrival_t - curr_t
-                self.time_left[curr_p] -= dt
-                curr_t += dt
 
                 # Update sets and queue
                 self.pending_arrivals.remove(next_arrival_p)
@@ -203,9 +207,6 @@ class Solver:
 
             else:
                 # Next event is process finish
-                dt = finish_curr_t - curr_t
-                self.time_left[curr_p] -= dt
-                curr_t += dt
 
                 self.logger.begin_event(curr_t)
 
@@ -240,11 +241,15 @@ class Solver:
             next_arrival_p, next_arrival_t = self.__find_next_arrival()
             finish_curr_t = curr_t + self.time_left[curr_p]
 
-            if next_arrival_t < finish_curr_t:
+            next_t = min(next_arrival_t, finish_curr_t)
+
+            # Update times
+            dt = next_t - curr_t
+            self.time_left[curr_p] -= dt
+            curr_t += dt
+
+            if next_t == next_arrival_t:
                 # Next event is process arrival
-                dt = next_arrival_t - curr_t
-                self.time_left[curr_p] -= dt
-                curr_t += dt
 
                 # Update sets
                 self.pending_arrivals.remove(next_arrival_p)
@@ -258,9 +263,6 @@ class Solver:
 
             else:
                 # Next event is process finish
-                dt = finish_curr_t - curr_t
-                self.time_left[curr_p] -= dt
-                curr_t += dt
 
                 self.logger.begin_event(curr_t)
 
@@ -296,11 +298,15 @@ class Solver:
             next_arrival_p, next_arrival_t = self.__find_next_arrival()
             finish_curr_t = curr_t + self.time_left[curr_p]
 
-            if next_arrival_t < finish_curr_t:
+            next_t = min(next_arrival_t, finish_curr_t)
+
+            # Update times
+            dt = next_t - curr_t
+            self.time_left[curr_p] -= dt
+            curr_t += dt
+
+            if next_t == next_arrival_t:
                 # Next event is process arrival
-                dt = next_arrival_t - curr_t
-                self.time_left[curr_p] -= dt
-                curr_t += dt
 
                 # Update sets
                 self.pending_arrivals.remove(next_arrival_p)
@@ -318,9 +324,6 @@ class Solver:
 
             else:
                 # Next event is process finish
-                dt = finish_curr_t - curr_t
-                self.time_left[curr_p] -= dt
-                curr_t += dt
 
                 self.logger.begin_event(curr_t)
 
@@ -449,14 +452,3 @@ class Solver:
             key=lambda pair: pair[1],
         )[0]
         return next_p
-
-
-p = Problem(SchedulingMethod.RR, [
-    (0, 5),
-    (1, 7),
-    (3, 4),
-], quantum=2)
-s = Solver(p)
-
-pprint(s.solve())
-pprint(s.logger.events)
