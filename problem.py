@@ -150,8 +150,13 @@ class Solver:
 
         if self.problem.method == SchedulingMethod.FCFS:
             self.__log_FCFS()
+        elif self.problem.method == SchedulingMethod.SJF:
+            self.__log_SJF()
         elif self.problem.method == SchedulingMethod.SRTF:
             self.__log_SRTF()
+        elif self.problem.method == SchedulingMethod.RR:
+            # TODO: implement
+            pass
 
         res = self.logger.solve()
         self.is_solved = True
@@ -211,6 +216,62 @@ class Solver:
                 # Find next process if still more processes
                 if len(self.pending_completion) + len(self.pending_arrivals) > 0:
                     next_p = arrival_q.pop(0)
+                    self.logger.add(next_p, self.time_left[next_p])
+                    curr_p = next_p
+
+                self.logger.end_event()
+
+    def __log_SJF(self):
+        """Logs events using shortest job first
+        """
+        # Find start point
+        curr_p, curr_t = self.__find_next_arrival()
+        self.pending_arrivals.remove(curr_p)
+        self.pending_completion.add(curr_p)
+
+        # Log
+        self.logger.begin_event(curr_t)
+        self.logger.add(curr_p, self.time_left[curr_p])
+        self.logger.end_event()
+
+        # Process events
+        while len(self.pending_completion) + len(self.pending_arrivals) > 0:
+            # Find next event
+            next_arrival_p, next_arrival_t = self.__find_next_arrival()
+            finish_curr_t = curr_t + self.time_left[curr_p]
+
+            if next_arrival_t < finish_curr_t:
+                # Next event is process arrival
+                dt = next_arrival_t - curr_t
+                self.time_left[curr_p] -= dt
+                curr_t += dt
+
+                # Update sets
+                self.pending_arrivals.remove(next_arrival_p)
+                self.pending_completion.add(next_arrival_p)
+
+                # Log
+                self.logger.begin_event(curr_t)
+                self.logger.add(curr_p, self.time_left[curr_p])
+                self.logger.add(next_arrival_p, self.time_left[next_arrival_p])
+                self.logger.end_event()
+
+            else:
+                # Next event is process finish
+                dt = finish_curr_t - curr_t
+                self.time_left[curr_p] -= dt
+                curr_t += dt
+
+                self.logger.begin_event(curr_t)
+
+                # Update sets and find next process
+                self.logger.add(curr_p, self.time_left[curr_p])
+                self.pending_completion.remove(curr_p)
+
+                # Find next process with smallest wait time if still more processes
+                # Wait time equivalent to execution time since no interleaving
+                if len(self.pending_completion) + len(self.pending_arrivals) > 0:
+                    next_p = self.__find_next_shortest()
                     self.logger.add(next_p, self.time_left[next_p])
                     curr_p = next_p
 
@@ -306,10 +367,10 @@ class Solver:
         return next_p
 
 
-p = Problem(SchedulingMethod.FCFS, [
+p = Problem(SchedulingMethod.SRTF, [
     (0, 9),
-    (1, 4),
-    (2, 9),
+    (1, 9),
+    (2, 4),
 ])
 s = Solver(p)
 
