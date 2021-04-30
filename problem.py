@@ -155,7 +155,7 @@ class Solver:
         elif self.problem.method == SchedulingMethod.SRTF:
             self.__log_SRTF()
         elif self.problem.method == SchedulingMethod.RR:
-            # TODO: implement
+            self.__log_RR()
             pass
 
         res = self.logger.solve()
@@ -164,9 +164,9 @@ class Solver:
         return res
 
     def __log_FCFS(self):
-        """Solves first come, first served problem
+        """Logs events using first come, first served
         """
-        arrival_q = []
+        process_q = []
 
         # Find start point
         curr_p, curr_t = self.__find_next_arrival()
@@ -193,7 +193,7 @@ class Solver:
                 # Update sets and queue
                 self.pending_arrivals.remove(next_arrival_p)
                 self.pending_completion.add(next_arrival_p)
-                arrival_q.append(next_arrival_p)
+                process_q.append(next_arrival_p)
 
                 # Log
                 self.logger.begin_event(curr_t)
@@ -215,7 +215,7 @@ class Solver:
 
                 # Find next process if still more processes
                 if len(self.pending_completion) + len(self.pending_arrivals) > 0:
-                    next_p = arrival_q.pop(0)
+                    next_p = process_q.pop(0)
                     self.logger.add(next_p, self.time_left[next_p])
                     curr_p = next_p
 
@@ -336,6 +336,90 @@ class Solver:
 
                 self.logger.end_event()
 
+    def __log_RR(self):
+        """Logs events using round robin
+        """
+        process_q = []
+        time_remaining = self.problem.quantum
+
+        # Find start point
+        curr_p, curr_t = self.__find_next_arrival()
+        self.pending_arrivals.remove(curr_p)
+        self.pending_completion.add(curr_p)
+
+        # Log
+        self.logger.begin_event(curr_t)
+        self.logger.add(curr_p, self.time_left[curr_p])
+        self.logger.end_event()
+
+        # Process events
+        while len(self.pending_completion) + len(self.pending_arrivals) > 0:
+            # Find next event
+            next_arrival_p, next_arrival_t = self.__find_next_arrival()
+            finish_curr_t = curr_t + self.time_left[curr_p]
+            time_up_t = curr_t + time_remaining
+
+            next_t = min(next_arrival_t, finish_curr_t, time_up_t)
+
+            # Update times
+            dt = next_t - curr_t
+            self.time_left[curr_p] -= dt
+            time_remaining -= dt
+            curr_t += dt
+
+            if next_t == next_arrival_t:
+                # Next event is process arrival
+
+                # Update sets and queue
+                self.pending_arrivals.remove(next_arrival_p)
+                self.pending_completion.add(next_arrival_p)
+                process_q.append(next_arrival_p)
+
+                # Log
+                self.logger.begin_event(curr_t)
+                self.logger.add(curr_p, self.time_left[curr_p])
+                self.logger.add(next_arrival_p, self.time_left[next_arrival_p])
+                self.logger.end_event()
+
+            elif next_t == finish_curr_t:
+                # Next event is process finish
+
+                # Reset time remaining
+                time_remaining = self.problem.quantum
+
+                # Update sets and find next process
+                self.pending_completion.remove(curr_p)
+
+                # Log
+                self.logger.begin_event(curr_t)
+                self.logger.add(curr_p, self.time_left[curr_p])
+
+                # Find next process if still more processes
+                if len(self.pending_completion) + len(self.pending_arrivals) > 0:
+                    next_p = process_q.pop(0)
+                    self.logger.add(next_p, self.time_left[next_p])
+                    curr_p = next_p
+
+                self.logger.end_event()
+
+            else:
+                # Next event is time up
+
+                # Reset time remaining
+                time_remaining = self.problem.quantum
+
+                # Update queue and find next process
+                process_q.append(curr_p)
+                next_p = process_q.pop(0)
+
+                # Log
+                self.logger.begin_event(curr_t)
+                self.logger.add(curr_p, self.time_left[curr_p])
+                self.logger.add(next_p, self.time_left[next_p])
+                self.logger.end_event()
+
+                curr_p = next_p
+
     def __find_next_arrival(self) -> Tuple[int, int]:
         """Find next arriving process
 
@@ -367,11 +451,12 @@ class Solver:
         return next_p
 
 
-p = Problem(SchedulingMethod.SRTF, [
-    (0, 9),
-    (1, 9),
-    (2, 4),
-])
+p = Problem(SchedulingMethod.RR, [
+    (0, 5),
+    (1, 7),
+    (3, 4),
+], quantum=2)
 s = Solver(p)
 
 pprint(s.solve())
+pprint(s.logger.events)
