@@ -13,6 +13,43 @@ class SchedulingMethod(enum.Enum):
     RR = 3  # Round robin
 
 
+class Problem:
+    """Process scheduling problem
+    """
+
+    def __init__(self, method: SchedulingMethod, times: List[Tuple[int, int]], quantum: int = None):
+        """
+        :param method: Process scheduling method
+        :type method: SchedulingMethod
+
+        :param times: List of (arrival time, execution time) pairs for each process
+        :type times: List[Tuple[int, int]]
+
+        :param quantum: Quantum for RR problem. Ignored if not RR problem.
+        :type quantum: int
+        """
+        self.method = method
+        self.times = times
+        self.quantum = quantum
+
+    @staticmethod
+    def generate(method: SchedulingMethod, n_processes: int, max_time: int = 20, min_quantum: int = 2, max_quantum: int = 5):
+        """Generate random problem
+        """
+        arrival_times = random.sample(range(1, max_time), n_processes)
+        exec_times = [random.randint(1, t) for t in arrival_times]
+        times = [(t1, t2) for t1, t2 in zip(arrival_times, exec_times)]
+
+        method = random.choice(list(SchedulingMethod))
+
+        # TODO: check if problem is uniquely solvable
+        if method == SchedulingMethod.RR:
+            quantum = random.randint(min_quantum, max_quantum)
+            return Problem(method, times, quantum=quantum)
+        else:
+            return Problem(method, times)
+
+
 class EventLogger:
     """Event logger
     """
@@ -52,9 +89,6 @@ class EventLogger:
         :return: List of (finish time, wait time) pairs
         :rtype: List[Tuple[int, int]]
         """
-
-        pprint(self.events)
-
         events = self.events
         n_processes = self.n_processes
 
@@ -91,41 +125,18 @@ class EventLogger:
         return res
 
 
-class Problem:
-    """Process scheduling problem
+class Solver:
+    """Process scheduling solver
     """
 
-    def __init__(self, method: SchedulingMethod, times: List[Tuple[int, int]], quantum: int = None):
-        """
-        :param method: Process scheduling method
-        :type method: SchedulingMethod
-
-        :param times: List of (arrival time, execution time) pairs for each process
-        :type times: List[Tuple[int, int]]
-
-        :param quantum: Quantum for RR problem. Ignored if not RR problem.
-        :type quantum: int
-        """
-        self.method = method
-        self.times = times
-        self.quantum = quantum
-
-    @staticmethod
-    def generate(method: SchedulingMethod, n_processes: int, max_time: int = 20, min_quantum: int = 2, max_quantum: int = 5):
-        """Generate random problem
-        """
-        arrival_times = random.sample(range(1, max_time), n_processes)
-        exec_times = [random.randint(1, t) for t in arrival_times]
-        times = [(t1, t2) for t1, t2 in zip(arrival_times, exec_times)]
-
-        method = random.choice(list(SchedulingMethod))
-
-        # TODO: check if problem is uniquely solvable
-        if method == SchedulingMethod.RR:
-            quantum = random.randint(min_quantum, max_quantum)
-            return Problem(method, times, quantum=quantum)
-        else:
-            return Problem(method, times)
+    def __init__(self, problem: Problem):
+        self.problem = problem
+        self.n_processes = len(problem.times)
+        self.logger = EventLogger(self.n_processes)
+        self.time_left = [exec_t for _, exec_t in problem.times]
+        self.pending_arrivals = set(range(self.n_processes))
+        self.pending_completion = set()
+        self.is_solved = False
 
     def solve(self) -> List[Tuple[int, int]]:
         """Solves for finish and wait times
@@ -133,120 +144,173 @@ class Problem:
         :return: List of (finish time, wait time) pairs
         :rtype: List[Tuple[int, int]]
         """
-        if self.method == SchedulingMethod.FCFS:
-            logger = self.__log_SRTF()
-        elif self.method == SchedulingMethod.SRTF:
-            logger = self.__log_SRTF()
+        # Error if already solved
+        if self.is_solved:
+            raise Exception('problem has been solved')
 
-        return logger.solve()
+        if self.problem.method == SchedulingMethod.FCFS:
+            self.__log_FCFS()
+        elif self.problem.method == SchedulingMethod.SRTF:
+            self.__log_SRTF()
+
+        res = self.logger.solve()
+        self.is_solved = True
+
+        return res
 
     def __log_FCFS(self):
         """Solves first come, first served problem
         """
-        pass
-
-    def __log_SRTF(self) -> EventLogger:
-        """Logs events using shortest remaining time first
-
-        :return: Event logger
-        :rtype: EventLogger
-        """
-        n_processes = len(self.times)
-
-        logger = EventLogger(n_processes)
-        time_left = [exec_t for _, exec_t in self.times]
-        pending_arrivals = set(range(n_processes))
-        pending_completion = set()
-
-        def find_next_arrival():
-            """Helper to find next arrival from pending processes
-            """
-            pending_times = [self.times[i] for i in pending_arrivals]
-            best_t = float('inf')
-            best_p = None
-            for p, p_times in zip(pending_arrivals, pending_times):
-                if p_times[0] < best_t:
-                    best_p = p
-                    best_t = p_times[0]
-            return best_p, best_t
-
-        def find_next_pending_completion():
-            """Helper to find next shortest process
-            """
-            wait_times = [time_left[i] for i in pending_completion]
-            best_t = float('inf')
-            best_p = None
-            for p, t in zip(pending_completion, wait_times):
-                if t < best_t:
-                    best_p = p
-                    best_t = t
-            return best_p, best_t
+        arrival_q = []
 
         # Find start point
-        curr_p, curr_t = find_next_arrival()
-        pending_arrivals.remove(curr_p)
-        pending_completion.add(curr_p)
+        curr_p, curr_t = self.__find_next_arrival()
+        self.pending_arrivals.remove(curr_p)
+        self.pending_completion.add(curr_p)
 
         # Log
-        logger.begin_event(curr_t)
-        logger.add(curr_p, time_left[curr_p])
-        logger.end_event()
+        self.logger.begin_event(curr_t)
+        self.logger.add(curr_p, self.time_left[curr_p])
+        self.logger.end_event()
 
         # Process events
-        while len(pending_completion) + len(pending_arrivals) > 0:
+        while len(self.pending_completion) + len(self.pending_arrivals) > 0:
             # Find next event
-            next_arrival_p, next_arrival_t = find_next_arrival()
-            finish_curr_t = curr_t + time_left[curr_p]
+            next_arrival_p, next_arrival_t = self.__find_next_arrival()
+            finish_curr_t = curr_t + self.time_left[curr_p]
 
             if next_arrival_t < finish_curr_t:
                 # Next event is process arrival
                 dt = next_arrival_t - curr_t
-                time_left[curr_p] -= dt
+                self.time_left[curr_p] -= dt
+                curr_t += dt
+
+                # Update sets and queue
+                self.pending_arrivals.remove(next_arrival_p)
+                self.pending_completion.add(next_arrival_p)
+                arrival_q.append(next_arrival_p)
+
+                # Log
+                self.logger.begin_event(curr_t)
+                self.logger.add(curr_p, self.time_left[curr_p])
+                self.logger.add(next_arrival_p, self.time_left[next_arrival_p])
+                self.logger.end_event()
+
+            else:
+                # Next event is process finish
+                dt = finish_curr_t - curr_t
+                self.time_left[curr_p] -= dt
+                curr_t += dt
+
+                self.logger.begin_event(curr_t)
+
+                # Update sets and find next process
+                self.logger.add(curr_p, self.time_left[curr_p])
+                self.pending_completion.remove(curr_p)
+
+                # Find next process if still more processes
+                if len(self.pending_completion) + len(self.pending_arrivals) > 0:
+                    next_p = arrival_q.pop(0)
+                    self.logger.add(next_p, self.time_left[next_p])
+                    curr_p = next_p
+
+                self.logger.end_event()
+
+    def __log_SRTF(self):
+        """Logs events using shortest remaining time first
+        """
+        # Find start point
+        curr_p, curr_t = self.__find_next_arrival()
+        self.pending_arrivals.remove(curr_p)
+        self.pending_completion.add(curr_p)
+
+        # Log
+        self.logger.begin_event(curr_t)
+        self.logger.add(curr_p, self.time_left[curr_p])
+        self.logger.end_event()
+
+        # Process events
+        while len(self.pending_completion) + len(self.pending_arrivals) > 0:
+            # Find next event
+            next_arrival_p, next_arrival_t = self.__find_next_arrival()
+            finish_curr_t = curr_t + self.time_left[curr_p]
+
+            if next_arrival_t < finish_curr_t:
+                # Next event is process arrival
+                dt = next_arrival_t - curr_t
+                self.time_left[curr_p] -= dt
                 curr_t += dt
 
                 # Update sets
-                pending_arrivals.remove(next_arrival_p)
-                pending_completion.add(next_arrival_p)
+                self.pending_arrivals.remove(next_arrival_p)
+                self.pending_completion.add(next_arrival_p)
 
                 # Log
-                logger.begin_event(curr_t)
-                logger.add(curr_p, time_left[curr_p])
-                logger.add(next_arrival_p, time_left[next_arrival_p])
-                logger.end_event()
+                self.logger.begin_event(curr_t)
+                self.logger.add(curr_p, self.time_left[curr_p])
+                self.logger.add(next_arrival_p, self.time_left[next_arrival_p])
+                self.logger.end_event()
 
                 # Switch if remaining time of new arrival is less
-                if time_left[next_arrival_p] < time_left[curr_p]:
+                if self.time_left[next_arrival_p] < self.time_left[curr_p]:
                     curr_p = next_arrival_p
 
             else:
                 # Next event is process finish
                 dt = finish_curr_t - curr_t
-                time_left[curr_p] -= dt
+                self.time_left[curr_p] -= dt
                 curr_t += dt
 
-                logger.begin_event(curr_t)
+                self.logger.begin_event(curr_t)
 
                 # Update sets and find next process
-                logger.add(curr_p, time_left[curr_p])
+                self.logger.add(curr_p, self.time_left[curr_p])
+                self.pending_completion.remove(curr_p)
 
-                pending_completion.remove(curr_p)
-
-                # Find next process if still more processes
-                if len(pending_completion) + len(pending_arrivals) > 0:
-                    next_p, next_t = find_next_pending_completion()
-
-                    logger.add(next_p, time_left[next_p])
+                # Find next process with smallest wait time if still more processes
+                if len(self.pending_completion) + len(self.pending_arrivals) > 0:
+                    next_p = self.__find_next_shortest()
+                    self.logger.add(next_p, self.time_left[next_p])
                     curr_p = next_p
 
-                logger.end_event()
+                self.logger.end_event()
 
-        return logger
+    def __find_next_arrival(self) -> Tuple[int, int]:
+        """Find next arriving process
+
+        :return: (process, arrival time) pair
+        :rtype: Tuple[int, int]
+        """
+        pending_times = [self.problem.times[i] for i in self.pending_arrivals]
+        best_t = float('inf')
+        best_p = None
+        for p, p_times in zip(self.pending_arrivals, pending_times):
+            if p_times[0] < best_t:
+                best_p = p
+                best_t = p_times[0]
+        return best_p, best_t
+
+    def __find_next_shortest(self) -> int:
+        """Find next process pending completion with shortest time left
+
+        :return: Process index of next process
+        :rtype: int
+        """
+        wait_times = [
+            self.time_left[i] for i in self.pending_completion
+        ]
+        next_p = min(
+            zip(self.pending_completion, wait_times),
+            key=lambda pair: pair[1],
+        )[0]
+        return next_p
 
 
-p = Problem(SchedulingMethod.SRTF, [
+p = Problem(SchedulingMethod.FCFS, [
     (0, 9),
     (1, 4),
     (2, 9),
 ])
+s = Solver(p)
 
-pprint(p.solve())
+pprint(s.solve())
