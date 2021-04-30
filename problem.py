@@ -13,6 +13,84 @@ class SchedulingMethod(enum.Enum):
     RR = 3  # Round robin
 
 
+class EventLogger:
+    """Event logger
+    """
+
+    def __init__(self, n_processes: int):
+        self.n_processes = n_processes
+        self.events = []
+
+    def begin_event(self, time: int):
+        """Begin event at a point in time
+
+        :param time: Time event occured
+        :type time: int
+        """
+        self.curr_t = time
+        self.curr_state = [None] * self.n_processes
+
+    def end_event(self):
+        """End and commit current event
+        """
+        self.events.append((self.curr_t, self.curr_state))
+
+    def add(self, process: int, time_left: int):
+        """Add processes to current event
+
+        :param process: Index of process
+        :type process: int
+
+        :param time_left: Time left for process
+        :type time_left: int
+        """
+        self.curr_state[process] = time_left
+
+    def solve(self) -> List[Tuple[int, int]]:
+        """Solve finish and wait times from event log
+
+        :return: List of (finish time, wait time) pairs
+        :rtype: List[Tuple[int, int]]
+        """
+
+        pprint(self.events)
+
+        events = self.events
+        n_processes = self.n_processes
+
+        res = [None] * n_processes
+        for p in range(n_processes):
+
+            # Find finish time
+            finish_t = 0
+            for t, state in events:
+                if state[p] == 0:
+                    finish_t = t
+
+            # Find wait time
+            wait_t = 0
+            start_idx = 0
+            while events[start_idx][1][p] == None:
+                start_idx += 1
+
+            for i in range(start_idx, len(events)-1):
+                t, state = events[i]
+                next_t, next_state = events[i+1]
+
+                # Exit if already done
+                if state[p] == 0:
+                    break
+
+                # Not waiting if time left between events is not null and changes
+                if state[p] != None and next_state[p] != None and state[p] != next_state[p]:
+                    continue
+                else:
+                    wait_t += next_t - t
+            res[p] = (finish_t, wait_t)
+
+        return res
+
+
 class Problem:
     """Process scheduling problem
     """
@@ -56,19 +134,26 @@ class Problem:
         :rtype: List[Tuple[int, int]]
         """
         if self.method == SchedulingMethod.FCFS:
-            return self.__solve_FCFS()
+            logger = self.__log_SRTF()
         elif self.method == SchedulingMethod.SRTF:
-            return self.__solve_SRTF()
+            logger = self.__log_SRTF()
 
-    def __solve_FCFS(self):
+        return logger.solve()
+
+    def __log_FCFS(self):
+        """Solves first come, first served problem
+        """
         pass
 
-    def __solve_SRTF(self):
-        """Solves SRTF problem
+    def __log_SRTF(self) -> EventLogger:
+        """Logs events using shortest remaining time first
+
+        :return: Event logger
+        :rtype: EventLogger
         """
         n_processes = len(self.times)
 
-        events = []
+        logger = EventLogger(n_processes)
         time_left = [exec_t for _, exec_t in self.times]
         pending_arrivals = set(range(n_processes))
         pending_completion = set()
@@ -86,6 +171,8 @@ class Problem:
             return best_p, best_t
 
         def find_next_pending_completion():
+            """Helper to find next shortest process
+            """
             wait_times = [time_left[i] for i in pending_completion]
             best_t = float('inf')
             best_p = None
@@ -101,9 +188,9 @@ class Problem:
         pending_completion.add(curr_p)
 
         # Log
-        event_state = [None] * n_processes
-        event_state[curr_p] = time_left[curr_p]
-        events.append((curr_t, event_state))
+        logger.begin_event(curr_t)
+        logger.add(curr_p, time_left[curr_p])
+        logger.end_event()
 
         # Process events
         while len(pending_completion) + len(pending_arrivals) > 0:
@@ -122,10 +209,10 @@ class Problem:
                 pending_completion.add(next_arrival_p)
 
                 # Log
-                event_state = [None] * n_processes
-                event_state[curr_p] = time_left[curr_p]
-                event_state[next_arrival_p] = time_left[next_arrival_p]
-                events.append((curr_t, event_state))
+                logger.begin_event(curr_t)
+                logger.add(curr_p, time_left[curr_p])
+                logger.add(next_arrival_p, time_left[next_arrival_p])
+                logger.end_event()
 
                 # Switch if remaining time of new arrival is less
                 if time_left[next_arrival_p] < time_left[curr_p]:
@@ -137,53 +224,23 @@ class Problem:
                 time_left[curr_p] -= dt
                 curr_t += dt
 
-                event_state = [None] * n_processes
+                logger.begin_event(curr_t)
 
                 # Update sets and find next process
-                event_state[curr_p] = time_left[curr_p]
+                logger.add(curr_p, time_left[curr_p])
+
                 pending_completion.remove(curr_p)
 
                 # Find next process if still more processes
                 if len(pending_completion) + len(pending_arrivals) > 0:
                     next_p, next_t = find_next_pending_completion()
-                    event_state[next_p] = time_left[next_p]
+
+                    logger.add(next_p, time_left[next_p])
                     curr_p = next_p
 
-                # Log
-                events.append((curr_t, event_state))
+                logger.end_event()
 
-        # Determine finish and wait times from event log
-        res = [None] * n_processes
-        for p in range(n_processes):
-
-            # Find finish time
-            finish_t = 0
-            for t, state in events:
-                if state[p] == 0:
-                    finish_t = t
-
-            # Find wait time
-            wait_t = 0
-            start_idx = 0
-            while events[start_idx][1][p] == None:
-                start_idx += 1
-
-            for i in range(start_idx, len(events)-1):
-                t, state = events[i]
-                next_t, next_state = events[i+1]
-
-                # Exit if already done
-                if state[p] == 0:
-                    break
-
-                # Not waiting if time left between events is not null and changes
-                if state[p] != None and next_state[p] != None and state[p] != next_state[p]:
-                    continue
-                else:
-                    wait_t += next_t - t
-            res[p] = (finish_t, wait_t)
-
-        return res
+        return logger
 
 
 p = Problem(SchedulingMethod.SRTF, [
