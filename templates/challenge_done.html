@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Challenge{% endblock %}
+
+{% block content %}
+
+<h1>
+  {% if is_correct: %}
+  Correct!
+  {% else %}
+  Incorrect!
+  {% endif %}
+</h1>
+
+{% include "includes/problem.html" %}
+
+<h2>Answer:</h2>
+
+<table border="1">
+  <tr>
+    <th>Process #</th>
+    <th>Finish Time</th>
+    <th>Wait Time</th>
+  </tr>
+  {% for finish_t, wait_t in answer_times %}
+  <tr>
+    <td>{{ loop.index0 + 1 }}</td>
+    <td>{{ finish_t }}</td>
+    <td>{{ wait_t }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<a href="/challenge"><input type="button" value="Next" /></a>
+
+{% endblock %}

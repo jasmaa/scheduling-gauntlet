@@ -1,0 +1,29 @@
+<p>
+  Solve using:
+  <strong>
+    {% if problem.method == 'FCFS' %}
+    First-come, first-served
+    {% elif problem.method == 'SJF' %}
+    Shortest job first
+    {% elif problem.method == 'SRTF' %}
+    Shortest remaining time first
+    {% else %}
+    Round robin (quantum={{ problem.quantum }})
+    {% endif %}
+  </strong>
+</p>
+
+<table border="1">
+  <tr>
+    <th>Process #</th>
+    <th>Arrival Time</th>
+    <th>Execution Time</th>
+  </tr>
+  {% for arrive_t, exec_t in problem.times %}
+  <tr>
+    <td>{{ loop.index0 + 1 }}</td>
+    <td>{{ arrive_t }}</td>
+    <td>{{ exec_t }}</td>
+  </tr>
+  {% endfor %}
+</table>

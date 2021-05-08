@@ -3,39 +3,27 @@
 {% block title %}Challenge{% endblock %}
 
 {% block content %}
-<p>New Challenge!</p>
+<h1>New Challenge!</h1>
 
-<p>
-  Solve using:
-  <strong>
-    {% if problem.method == 'FCFS' %}
-    First-come, first-served
-    {% elif problem.method == 'SJF' %}
-    Shortest job first
-    {% elif problem.method == 'SRTF' %}
-    Shortest remaining time first
-    {% else %}
-    Round robin (quantum={{ problem.quantum }})
-    {% endif %}
-  </strong>
-</p>
+{% include "includes/problem.html" %}
 
-<table border="1">
-  <tr>
-    <th>Process #</th>
-    <th>Arrival Time</th>
-    <th>Execution Time</th>
-  </tr>
-  {% for arrive_t, exec_t in problem.times %}
-  <tr>
-    <td>{{ loop.index0 + 1 }}</td>
-    <td>{{ arrive_t }}</td>
-    <td>{{ exec_t }}</td>
-  </tr>
-  {% endfor %}
-</table>
+<h2>Answer:</h2>
 
-<form action="/challenge" method="POST">
+<form action="/challenge" method="POST" autocomplete="off">
+  <table border="1">
+    <tr>
+      <th>Process #</th>
+      <th>Finish Time</th>
+      <th>Wait Time</th>
+    </tr>
+    {% for _ in problem.times %}
+    <tr>
+      <td>{{ loop.index0 + 1 }}</td>
+      <td><input name="finish_{{ loop.index0 }}" /></td>
+      <td><input name="wait_{{ loop.index0 }}" /></td>
+    </tr>
+    {% endfor %}
+  </table>
   <input type="submit" value="Submit" />
 </form>
 
