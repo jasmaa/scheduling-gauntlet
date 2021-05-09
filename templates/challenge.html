@@ -3,28 +3,37 @@
 {% block title %}Challenge{% endblock %}
 
 {% block content %}
-<h1>New Challenge!</h1>
+<div class="container">
+  <div class="m-4">
+    <h1>New Challenge!</h1>
 
-{% include "includes/problem.html" %}
+    <div class="card my-4">
+      <div class="card-body">
+        {% include "includes/problem.html" %}
+      </div>
+    </div>
 
-<h2>Answer:</h2>
-
-<form action="/challenge" method="POST" autocomplete="off">
-  <table border="1">
-    <tr>
-      <th>Process #</th>
-      <th>Finish Time</th>
-      <th>Wait Time</th>
-    </tr>
-    {% for _ in problem.times %}
-    <tr>
-      <td>{{ loop.index0 + 1 }}</td>
-      <td><input name="finish_{{ loop.index0 }}" /></td>
-      <td><input name="wait_{{ loop.index0 }}" /></td>
-    </tr>
-    {% endfor %}
-  </table>
-  <input type="submit" value="Submit" />
-</form>
-
+    <form action="/challenge" method="POST" autocomplete="off">
+      <div class="card my-4">
+        <div class="card-body">
+          <table class="table">
+            <tr>
+              <th>Process #</th>
+              <th>Finish Time</th>
+              <th>Wait Time</th>
+            </tr>
+            {% for _ in problem.times %}
+            <tr>
+              <td>{{ loop.index0 + 1 }}</td>
+              <td><input class="form-control" name="finish_{{ loop.index0 }}" /></td>
+              <td><input class="form-control" name="wait_{{ loop.index0 }}" /></td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+      <input class="btn btn-primary float-right" type="submit" value="Submit" />
+    </form>
+  </div>
+</div>
 {% endblock %}

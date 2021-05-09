@@ -3,8 +3,20 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<form action="/login" method="POST">
-  <input type="text" name="username" />
-  <input type="submit" value="Login" />
-</form>
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 offset-md-2 col-sm-12 offset-sm-0">
+      <div class="card m-4 p-4">
+        <h1 class="pb-4">Login</h1>
+        <form action="/login" method="POST">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input class="form-control" id="username" type="text" name="username" />
+          </div>
+          <input class="btn btn-primary float-right" type="submit" value="Login" />
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

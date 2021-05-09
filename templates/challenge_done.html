@@ -3,34 +3,42 @@
 {% block title %}Challenge{% endblock %}
 
 {% block content %}
+<div class="container">
+  <div class="m-4">
+    <h1>
+      {% if is_correct: %}
+      Correct!
+      {% else %}
+      Incorrect!
+      {% endif %}
+    </h1>
 
-<h1>
-  {% if is_correct: %}
-  Correct!
-  {% else %}
-  Incorrect!
-  {% endif %}
-</h1>
+    <div class="card my-4">
+      <div class="card-body">
+        {% include "includes/problem.html" %}
+      </div>
+    </div>
 
-{% include "includes/problem.html" %}
+    <div class="card my-4">
+      <div class="card-body">
+        <table class="table">
+          <tr>
+            <th>Process #</th>
+            <th>Finish Time</th>
+            <th>Wait Time</th>
+          </tr>
+          {% for finish_t, wait_t in answer_times %}
+          <tr>
+            <td>{{ loop.index0 + 1 }}</td>
+            <td>{{ finish_t }}</td>
+            <td>{{ wait_t }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
 
-<h2>Answer:</h2>
-
-<table border="1">
-  <tr>
-    <th>Process #</th>
-    <th>Finish Time</th>
-    <th>Wait Time</th>
-  </tr>
-  {% for finish_t, wait_t in answer_times %}
-  <tr>
-    <td>{{ loop.index0 + 1 }}</td>
-    <td>{{ finish_t }}</td>
-    <td>{{ wait_t }}</td>
-  </tr>
-  {% endfor %}
-</table>
-
-<a href="/challenge"><input type="button" value="Next" /></a>
-
+    <a class="btn btn-info float-right" href="/challenge">Next Challenge</a>
+  </div>
+</div>
 {% endblock %}
