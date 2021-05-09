@@ -21,7 +21,11 @@ def challenge():
         else:
             problem = Problem.from_json(session['problem'])
 
-        return render_template('challenge.html', problem=problem)
+        return render_template(
+            'challenge.html',
+            username=session['username'],
+            problem=problem,
+        )
 
     else:
         # Submit challenge
@@ -53,6 +57,7 @@ def challenge():
 
         return render_template(
             'challenge_done.html',
+            username=session['username'],
             problem=problem,
             is_correct=is_correct,
             answer_times=ans,
