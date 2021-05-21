@@ -15,7 +15,7 @@ def challenge():
     if request.method == 'GET':
         # Display challenge
         # Request challenge if no current problem
-        if session['problem'] == None:
+        if 'problem' not in session or session['problem'] == None:
             problem = Problem.generate(SchedulingMethod.FCFS, n_processes=3)
             session['problem'] = problem.to_json()
         else:
@@ -30,7 +30,7 @@ def challenge():
     else:
         # Submit challenge
         # Request new problem if no current problem
-        if session['problem'] == None:
+        if 'problem' not in session or session['problem'] == None:
             return redirect('/challenge')
 
         problem = Problem.from_json(session['problem'])
