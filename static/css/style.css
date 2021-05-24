@@ -59,6 +59,14 @@ form {
     background-color: #a366ff;
 }
 
+.sg-btn-success {
+    border-style: none;
+    background-color: #00cc99;
+}
+.sg-btn-success:hover {
+    background-color: #009973;
+}
+
 .sg-btn-bright-outline {
     border-style: solid;
     border-color: white;
@@ -69,26 +77,6 @@ form {
     background-color: rgba(255, 255, 255, 0.5);
 }
 
-.sg-btn-primary-outline {
-    border-style: solid;
-    color: #6699ff;
-    border-color: #c299ff;
-    background-color: white;
-}
-.sg-btn-primary-outline:hover {
-    background-color: #3377ff;
-}
-
-.sg-btn-info-outline {
-    border-style: solid;
-    color: #c299ff;
-    border-color: #c299ff;
-    background-color: white;
-}
-.sg-btn-info-outline:hover {
-    background-color: #a366ff;
-}
-
 .sg-navbar {
     display: flex;
     align-items: center;
@@ -96,6 +84,17 @@ form {
     justify-content: space-between;
     padding: 1em;
     background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
+}
+@media only screen and (max-width: 600px) {
+    .sg-navbar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
+        padding: 1em;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
+    }
 }
 .sg-navbar-nav {
     display: flex;
@@ -114,4 +113,13 @@ form {
     color: white;
     text-decoration: none;
     border-bottom: 0.2em solid white;
+}
+
+.sg-badge {
+    border-color: white;
+    border-width: 0.1em;
+    border-style: solid;
+    color: white;
+    padding: 0.3em;
+    border-radius: 0.5em;
 }
