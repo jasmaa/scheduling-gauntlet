@@ -17,9 +17,11 @@
 
     {% if username is defined %}
     <!-- Authenticated -->
-    <ul class="navbar-nav">
+    <ul class="navbar-nav d-flex align-items-center">
       <li class="nav-item">
-        <span class="nav-link">{{ score }}</span>
+        <a class="btn btn-sm btn-success mr-2" href="/challenge">
+          Challenge!
+        </a>
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-toggle="dropdown"

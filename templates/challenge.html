@@ -5,30 +5,35 @@
 {% block content %}
 <div class="container">
   <div class="m-4">
-
-    <div class="card my-4">
-      <div class="card-body">
-        {% include "includes/problem.html" %}
-      </div>
-    </div>
-
     <form action="/challenge" method="POST" autocomplete="off">
-      <div class="card my-4">
-        <div class="card-body">
-          <table class="table">
-            <tr>
-              <th>Process #</th>
-              <th>Finish Time</th>
-              <th>Wait Time</th>
-            </tr>
-            {% for _ in problem.times %}
-            <tr>
-              <td>{{ loop.index0 + 1 }}</td>
-              <td><input class="form-control" name="finish_{{ loop.index0 }}" /></td>
-              <td><input class="form-control" name="wait_{{ loop.index0 }}" /></td>
-            </tr>
-            {% endfor %}
-          </table>
+      <div class="row mb-5">
+        <div class="col-sm">
+          <div class="card my-4 h-100">
+            <div class="card-body">
+              {% include "includes/problem.html" %}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm">
+          <div class="card my-4 h-100">
+            <div class="card-body">
+              <table class="table">
+                <tr>
+                  <th>Process #</th>
+                  <th>Finish Time</th>
+                  <th>Wait Time</th>
+                </tr>
+                {% for _ in problem.times %}
+                <tr>
+                  <td>{{ loop.index0 + 1 }}</td>
+                  <td><input class="form-control" name="finish_{{ loop.index0 }}" /></td>
+                  <td><input class="form-control" name="wait_{{ loop.index0 }}" /></td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -36,7 +41,6 @@
         <input class="btn btn-primary" type="submit" value="Submit" />
       </div>
     </form>
-
   </div>
 </div>
 {% endblock %}
