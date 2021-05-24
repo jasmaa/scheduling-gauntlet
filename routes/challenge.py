@@ -1,3 +1,4 @@
+import random
 from flask import request, session, redirect, render_template
 from flask import current_app as app
 from challenge import Problem, SchedulingMethod, Solver
@@ -17,7 +18,8 @@ def challenge():
         # Display challenge
         # Request challenge if no current problem
         if 'problem' not in session or session['problem'] == None:
-            problem = Problem.generate(SchedulingMethod.FCFS, n_processes=3)
+            method = random.choice(list(SchedulingMethod))
+            problem = Problem.generate(method, n_processes=3)
             session['problem'] = problem.to_json()
         else:
             problem = Problem.from_json(session['problem'])
