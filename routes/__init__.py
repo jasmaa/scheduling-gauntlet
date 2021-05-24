@@ -1,5 +1,6 @@
 from flask import request, session, jsonify, redirect, render_template
 from flask import current_app as app
+from models import db, User
 from . import auth
 from . import challenge
 
@@ -16,6 +17,11 @@ def home():
     """Home page
     """
     if 'username' in session:
-        return render_template('home_auth.html', username=session['username'])
+        u = User.query.filter_by(username=session['username']).first()
+        return render_template(
+            'home_auth.html',
+            username=session['username'],
+            score=u.score,
+        )
     else:
         return render_template('home.html')

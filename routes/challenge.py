@@ -2,6 +2,7 @@ from flask import request, session, redirect, render_template
 from flask import current_app as app
 from challenge import Problem, SchedulingMethod, Solver
 from utils import parse_int
+from models import db, User
 
 
 @app.route('/challenge', methods=['POST', 'GET'])
@@ -21,10 +22,13 @@ def challenge():
         else:
             problem = Problem.from_json(session['problem'])
 
+        u = User.query.filter_by(username=session['username']).first()
+
         return render_template(
             'challenge.html',
             username=session['username'],
             problem=problem,
+            score=u.score
         )
 
     else:
@@ -52,6 +56,14 @@ def challenge():
                 is_correct = False
                 break
 
+        # Award points
+        # Correct, 1 point
+        # Incorrect, 0 points
+        u = User.query.filter_by(username=session['username']).first()
+        if is_correct:
+            u.score += 1
+            db.session.commit()
+
         # Reset problem
         session['problem'] = None
 
@@ -61,4 +73,5 @@ def challenge():
             problem=problem,
             is_correct=is_correct,
             answer_times=ans,
+            score=u.score,
         )
