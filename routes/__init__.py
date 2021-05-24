@@ -1,15 +1,10 @@
-from flask import request, session, jsonify, redirect, render_template
+from flask import session, render_template
 from flask import current_app as app
-from models import db, User
+from models import User
+
+# Import routes
 from . import auth
 from . import challenge
-
-
-@app.route('/dummy', methods=['GET'])
-def dummy():
-    """Dummy handler
-    """
-    return jsonify('dummy'), 200
 
 
 @app.route('/', methods=['GET'])
@@ -25,3 +20,32 @@ def home():
         )
     else:
         return render_template('home.html')
+
+
+@app.route('/about', methods=['GET'])
+def about():
+    pass
+
+
+@app.route('/scoreboard', methods=['GET'])
+def scoreboard():
+    # Get top 20 users
+    top_users = User.query.order_by(User.score.desc()).limit(20).all()
+    top_users = [{
+        'username': u.username,
+        'score': u.score,
+    } for u in top_users]
+
+    if 'username' in session:
+        u = User.query.filter_by(username=session['username']).first()
+        return render_template(
+            'scoreboard.html',
+            username=session['username'],
+            score=u.score,
+            top_users=top_users,
+        )
+    else:
+        return render_template(
+            'scoreboard.html',
+            top_users=top_users,
+        )

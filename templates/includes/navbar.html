@@ -13,6 +13,9 @@
       <li class="nav-item">
         <a class="nav-link" href="#">About</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/scoreboard">Scoreboard</a>
+      </li>
     </ul>
 
     {% if username is defined %}
@@ -22,6 +25,9 @@
         <a class="btn btn-sm btn-success mr-2" href="/challenge">
           Challenge!
         </a>
+      </li>
+      <li class="nav-item">
+        <span class="badge badge-secondary mr-2">Score: {{ score }}</span>
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-toggle="dropdown"

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Scoreboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card p-4 m-4">
+        <table class="table">
+            <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Score</th>
+            </tr>
+            {% for u in top_users %}
+            <tr>
+                <td>{{ loop.index0 + 1 }}</td>
+                <td>{{ u.username }}</td>
+                <td>{{ u.score }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}
