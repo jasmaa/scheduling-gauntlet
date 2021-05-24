@@ -123,3 +123,9 @@ form {
     padding: 0.3em;
     border-radius: 0.5em;
 }
+
+.sg-divider {
+    width: 2em;
+    border: 0.2em solid white;
+    margin: 2em 0em 2em 0em;
+}

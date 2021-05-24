@@ -1,4 +1,4 @@
-# Process Scheduling Racer
+# Scheduling Gauntlet
 
 Solve process scheduling problems
 

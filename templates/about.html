@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="sg-primary-panel">
+        <h1>About</h1>
+        <div class="sg-divider"></div>
+
+        <h2 class="mt-5">What is this?</h2>
+        <p>
+            Scheduling Gauntlet is a site for practicing process scheduling questions. Users are presented
+            with scheduling problems which can be solved for points. Users with the most points are displayed
+            on a global leaderboard.
+        </p>
+
+        <h2 class="mt-5">Pog. Why?</h2>
+        <p>
+            For fun.
+        </p>
+        <p>
+            Scheduling Gauntlet was also initially created as tool to
+            generate personal practice problems for a course I was taking.
+        </p>
+
+        <h2 class="mt-5">How does the game work?</h2>
+        <p>
+            You can join and compete against other users by signing up for an account.
+        </p>
+        <p>
+            Once logged in, you can get a new scheduling problem by pressing the "Challenge" button.
+            Solving the problem correctly will earn you 1 point.
+            There is no penalty for solving a problem incorrectly (blank answers
+            effectively skip the question).
+        </p>
+
+        <h2 class="mt-5">How do I solve a scheduling problem?</h2>
+        <p>
+            A scheuling problem is comprised of two main parameters: the scheduling method and
+            the process arrival and execution times.
+        </p>
+
+        <h3>Scheduling Method</h3>
+        <p>
+            The scheduling method describes the strategy for determining which process gets to be executed
+            at given points in time. Below are a list of strategies that can be encountered in Scheduling Gauntlet:
+        </p>
+        <ul>
+            <li>
+                <strong><u>First-come, first-served (FCFS)</u></strong>:
+                Processes are executed in the order that they arrive. Processes enter a queue
+                on arrival. When an executing process finishes, the next process to be executed is the next process in
+                line in the queue.
+            </li>
+            <li>
+                <strong><u>Shortest job first (SJF)</u></strong>:
+                Processes are executed based on shortest execution time. When an executing process finishes, the next
+                process to be executed is the process with the shortest execution time among the processes that have
+                already arrived.
+            </li>
+            <li>
+                <strong><u>Shortest remaining time first (SRTF)</u></strong>:
+                Processes are executed based on shortest execution time left. When the executing process finishes or
+                another process arrives, the next process to be executed is the process with the shortest execution time
+                left among the arrived processes. This method has the potential to pause and resume process execution.
+            </li>
+            <li>
+                <strong><u>Round robin (RR)</u></strong>:
+                Processes are executed and rotated based on a short period of time (<strong>quantum</strong>).
+                Processes are placed in a queue as they arrive. If the quantum for the currently executing process
+                expires
+                before the process finishes, that process is paused, moved to the back of queue, and the next process in
+                the queue
+                is picked up and started/resumed.
+            </li>
+        </ul>
+
+        <h3>Process Times</h3>
+        <p>
+            Problems also specify a list of processes, each with an arrival and execution time. A scheduling problem
+            is successfully solved if the the correct finish and wait times for each process are submitted.
+            Below are brief descriptions for each type of time:
+        </p>
+        <ul>
+            <li>
+                <strong><u>Arrival</u></strong>: The time at which a process arrives and is available to be executed.
+            </li>
+            <li>
+                <strong><u>Execution</u></strong>: The amount of time a process needs to execute before finishing.
+            </li>
+            <li>
+                <strong><u>Finish</u></strong>: The time at which a process finishes execution.
+            </li>
+            <li>
+                <strong><u>Wait</u></strong>: The amount of time a process spends not executing after arriving.
+            </li>
+        </ul>
+
+        <span>
+            <strong>⚠️ NOTE</strong>:
+            Sometimes problems generate with ties for which process should be executed next (ex. process arrives with
+            same remaining time as current executing process when using SRTF). Ties are broken in Scheduling Gauntlet by
+            giving precedence to processes with the lowest process number.
+        </span>
+
+        <h2 class="mt-5">Do I get candy for making it onto the leaderboard?</h2>
+        <p>
+            No.
+        </p>
+    </div>
+</div>
+{% endblock %}

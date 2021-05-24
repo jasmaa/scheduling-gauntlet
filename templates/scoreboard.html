@@ -4,22 +4,26 @@
 
 {% block content %}
 <div class="container">
-    <div class="sg-card p-4 m-4">
-        <table class="table" style="color: white;">
-            <tr>
-                <th>Rank</th>
-                <th>Username</th>
-                <th>Score</th>
-            </tr>
+    <div class="sg-primary-panel">
+        <h1 class="mb-5">Scoreboard</h1>
 
-            {% for u in top_users %}
-            <tr>
-                <td>{{ loop.index0 + 1 }}</td>
-                <td>{{ u.username }}</td>
-                <td>{{ u.score }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+        <div class="sg-card p-4 m-4">
+            <table class="table" style="color: white;">
+                <tr>
+                    <th>Rank</th>
+                    <th>Username</th>
+                    <th>Score</th>
+                </tr>
+
+                {% for u in top_users %}
+                <tr>
+                    <td>{{ loop.index0 + 1 }}</td>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.score }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

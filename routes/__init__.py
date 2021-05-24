@@ -24,7 +24,18 @@ def home():
 
 @app.route('/about', methods=['GET'])
 def about():
-    pass
+    if 'username' in session:
+        u = User.query.filter_by(username=session['username']).first()
+        return render_template(
+            'about.html',
+            username=session['username'],
+            score=u.score,
+
+        )
+    else:
+        return render_template(
+            'about.html',
+        )
 
 
 @app.route('/scoreboard', methods=['GET'])
