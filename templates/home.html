@@ -3,20 +3,41 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="container">
-  <div class="card p-4 m-4">
-    <div class="d-flex flex-column align-items-center">
-      <h1>Welcome to the Process Scheduling Racer</h1>
-      <p>
-        Are you faster than a CPU? Do you think you can schedule jobs faster than a computer?
-      </p>
-      <p>
-        Well too bad. You can't. But you can try.
-      </p>
-      <div>
-        <a class="btn btn-primary" href="/login">Login</a>
+<div>
+  <div class="sg-primary-panel p-4" style="min-height: 20em;">
+    <div class="d-flex flex-column align-items-center pt-5">
+      <h1 class="mb-5">Welcome to the Scheduling Gauntlet</h1>
+
+      <div class="row my-5" style="color: black;">
+        <div class="col-sm">
+          <div class="sg-card h-100">
+            <h4>Pretend to be an OS.</h4>
+          </div>
+        </div>
+        <div class="col-sm">
+          <div class="sg-card h-100">
+            <h4>Solve a variety of different process scheduling problems.</h4>
+          </div>
+        </div>
+        <div class="col-sm">
+          <div class="sg-card h-100">
+            <h4>Compete with others.</h4>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
+  <div class="sg-secondary-panel p-4" style="min-height: 20em;">
+    <div class="d-flex flex-column align-items-center mt-5">
+      <h1>Get Started</h1>
+      <div class="mt-5">
+        <a class="sg-btn sg-btn-info mr-1" href="/signup">Sign Up</a>
+        <a class="sg-btn sg-btn-primary" href="/login">Login</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
 {% endblock %}

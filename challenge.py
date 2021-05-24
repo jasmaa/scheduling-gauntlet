@@ -1,8 +1,7 @@
-from pprint import pprint
 import random
 import enum
 import json
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 
 class SchedulingMethod(str, enum.Enum):
