@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,6 +29,7 @@ def create_app():
     with app.app_context():
         import routes
         CORS(app)
+        CSRFProtect(app)
         return app
 
 

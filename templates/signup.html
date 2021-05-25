@@ -23,6 +23,8 @@
           {% endwith %}
 
           <form action="/signup" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
             <div class="form-group">
               <label for="username">Username</label>
               <input class="form-control" id="username" type="text" name="username" />

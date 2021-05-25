@@ -10,6 +10,8 @@
 
       <div class="d-flex flex-row align-items-center mt-5">
         <form action="/logout" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
           <input class="sg-btn sg-btn-bright-outline" type="submit" value="Logout" />
         </form>
       </div>

@@ -6,6 +6,8 @@
 <div class="container">
   <div class="m-4">
     <form action="/challenge" method="POST" autocomplete="off">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
       <div class="row mb-5">
         <div class="col-sm my-4">
           <div class="card h-100">
