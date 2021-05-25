@@ -1,5 +1,6 @@
 from typing import Any, Union
 import re
+import uuid
 
 
 def parse_int(v: Any) -> Union[int, None]:
@@ -31,3 +32,13 @@ def validate_email(email: str) -> bool:
     """
 
     return email_pattern.match(email) != None
+
+
+def generate_code() -> str:
+    """Generates password reset code
+
+    :return: Password reset code
+    :rtype: str
+    """
+
+    return str(uuid.uuid4())

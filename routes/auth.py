@@ -1,8 +1,8 @@
-import os
 from flask import request, session, redirect, render_template, flash
 from flask import current_app as app
 from models import db, User
-from utils import validate_email
+from mailer import send
+from utils import validate_email, generate_code
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -101,6 +101,101 @@ def login():
             return redirect('/')
         else:
             return render_template('login.html')
+
+
+@app.route('/password_reset', methods=['GET', 'POST'])
+def password_reset():
+    """Password reset request
+    """
+    if 'username' in session:
+        return redirect('/')
+
+    if request.method == 'POST':
+        username = request.form['username']
+        u = User.query.filter_by(username=username).first()
+        if u == None:
+            u = User.query.filter_by(email=username).first()
+            if u == None:
+                # No user found
+                flash('No user found under that username/email.', 'error')
+                return render_template('password_reset_request.html')
+
+        # Generate and set code for user
+        code = generate_code()
+        u.code = code
+        db.session.commit()
+
+        # Send email with reset link
+        callback_url = f'{request.base_url}/callback?code={code}&email={u.email}'
+        send(
+            to=u.email,
+            subject='Password Reset was Requested',
+            body=f'Password request link: {callback_url}',
+        )
+
+        flash('Email requesting password reset successfully sent!', 'info')
+        return render_template('password_reset_request.html')
+
+    else:
+        return render_template('password_reset_request.html')
+
+
+@app.route('/password_reset/callback', methods=['GET', 'POST'])
+def password_reset_callback():
+    """Password reset callback
+    """
+    if 'username' in session:
+        return redirect('/')
+
+    if request.method == 'POST':
+        code = request.form['code']
+        email = request.form['email']
+        password = request.form['password']
+        password_check = request.form['password-check']
+
+        if email == None:
+            return redirect('/')
+        if code == None:
+            return redirect('/')
+
+        u = User.query.filter_by(email=email).first()
+        if code != u.code:
+            # Invalid code
+            return redirect('/')
+
+        if password == None or len(password) == 0:
+            # No password
+            flash('Password is required.', 'error')
+            return render_template('password_reset.html', email=email, code=code)
+
+        if password != password_check:
+            # Passwords do not match
+            flash('Passwords do not match.', 'error')
+            return render_template('password_reset.html', email=email, code=code)
+
+        # Update password and code
+        u.set_password(password)
+        u.code = None
+        db.session.commit()
+
+        flash('Password successfully reset!', 'info')
+        return render_template('password_reset.html')
+
+    else:
+        code = request.args.get('code')
+        email = request.args.get('email')
+
+        if code == None:
+            return redirect('/')
+        if email == None:
+            return redirect('/')
+
+        u = User.query.filter_by(email=email).first()
+        if u.code != code:
+            # Invalid code
+            return redirect('/')
+
+        return render_template('password_reset.html', email=email, code=code)
 
 
 @app.route('/logout', methods=['POST'])

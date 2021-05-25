@@ -7,7 +7,9 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
+    is_verified = db.Column(db.Boolean(), nullable=False, default=False)
     score = db.Column(db.Integer, nullable=False, default=0)
+    code = db.Column(db.String(80))
 
     @staticmethod
     def create_user(username: str, email: str, password: str) -> "User":
@@ -22,3 +24,11 @@ class User(db.Model):
         """Validates candidate password
         """
         return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
+
+    def set_password(self, password: str):
+        """Sets user password
+        """
+        password_hash = bcrypt.hashpw(
+            password.encode('utf-8'), bcrypt.gensalt()
+        )
+        self.password_hash = password_hash.decode('utf-8')
