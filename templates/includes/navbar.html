@@ -16,12 +16,12 @@
   <!-- Authenticated -->
   <ul class="sg-navbar-nav">
     <li class="sg-nav-item">
-      <span class="sg-badge mr-2">
+      <span class="sg-badge">
         <span>Score: {{ score }}</span>
       </span>
     </li>
     <li class="sg-nav-item">
-      <a class="sg-btn sg-btn-success mr-2" href="/challenge">
+      <a class="sg-btn sg-btn-success" href="/challenge">
         Challenge!
       </a>
     </li>
@@ -29,8 +29,8 @@
   {% else %}
   <!-- Not authenticated -->
   <ul class="sg-navbar-nav">
-    <a class="sg-btn sg-btn-info mr-2" href="/signup">Sign Up</a>
-    <a class="sg-btn sg-btn-primary" href="/login">Login</a>
+    <a class="sg-btn sg-btn-info sg-nav-item" href="/signup">Sign Up</a>
+    <a class="sg-btn sg-btn-primary sg-nav-item" href="/login">Login</a>
   </ul>
   {% endif %}
 

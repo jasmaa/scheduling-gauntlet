@@ -40,14 +40,12 @@ def sign_up():
             flash('Passwords do not match.', 'error')
             return render_template('signup.html')
 
-        u = User.query.filter_by(username=username).first()
-        if u != None:
+        if User.query.filter_by(username=username).first() != None:
             # Username already taken
             flash('Username is already taken.', 'error')
             return render_template('signup.html')
 
-        u = User.query.filter_by(email=email).first()
-        if u != None:
+        if User.query.filter_by(email=email).first() != None:
             # Email already taken
             flash('Email is already taken.', 'error')
             return render_template('signup.html')

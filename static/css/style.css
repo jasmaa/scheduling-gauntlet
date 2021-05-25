@@ -8,6 +8,13 @@ form {
     display: inline;
 }
 
+a {
+    color: white;
+}
+a:hover {
+    color: lightgray;
+}
+
 .sg-primary-panel {
     background-color: #fa8072;
     color: white;

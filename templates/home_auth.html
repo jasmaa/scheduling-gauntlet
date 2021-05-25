@@ -8,10 +8,14 @@
     <div class="">
       <h1>Welcome back, {{ username }}!</h1>
 
-      <div class="d-flex flex-row align-items-center mt-5">
+      <div class="d-flex flex-row justify-content-between align-items-center mt-5">
+        <div class="d-flex flex-row align-items-center">
+          <a class="sg-btn sg-btn-bright-outline mr-2" href="/edit_profile">Edit Profile</a>
+          <a class="sg-btn sg-btn-bright-outline mr-2" href='/change_password'>Change Password</a>
+        </div>
+
         <form action="/logout" method="POST">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-
           <input class="sg-btn sg-btn-bright-outline" type="submit" value="Logout" />
         </form>
       </div>
