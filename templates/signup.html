@@ -16,6 +16,8 @@
             {% for category, message in messages %}
             {% if category == 'error' %}
             <div class="alert alert-danger">{{ message }}</div>
+            {% elif category == 'info' %}
+            <div class="alert alert-success">{{ message }}</div>
             {% endif %}
             {% endfor %}
           </div>
@@ -30,11 +32,15 @@
               <input class="form-control" id="username" type="text" name="username" />
             </div>
             <div class="form-group">
-              <label for="username">Password</label>
+              <label for="email">Email</label>
+              <input class="form-control" id="email" type="email" name="email" />
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
               <input class="form-control" id="password" type="password" name="password" />
             </div>
             <div class="form-group">
-              <label for="username">Re-enter Password</label>
+              <label for="password-check">Re-enter Password</label>
               <input class="form-control" id="password-check" type="password" name="password-check" />
             </div>
             <div class="text-right">

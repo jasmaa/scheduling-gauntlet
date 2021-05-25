@@ -1,8 +1,8 @@
-import psycopg2
+import os
 from flask import request, session, redirect, render_template, flash
 from flask import current_app as app
-import sqlalchemy
 from models import db, User
+from utils import validate_email
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -11,15 +11,28 @@ def sign_up():
     """
     if request.method == 'POST':
         username = request.form['username']
+        email = request.form['email']
         password = request.form['password']
         password_check = request.form['password-check']
 
         if username == None or len(username) == 0:
+            # No username
             flash('Username is required.', 'error')
             return render_template('signup.html')
 
+        if email == None or len(email) == 0:
+            # No email
+            flash('Email is required.', 'error')
+            return render_template('signup.html')
+
         if password == None or len(password) == 0:
+            # No password
             flash('Password is required.', 'error')
+            return render_template('signup.html')
+
+        if not validate_email(email):
+            # Email is invalid
+            flash('Email is invalid.', 'error')
             return render_template('signup.html')
 
         if password != password_check:
@@ -33,8 +46,15 @@ def sign_up():
             flash('Username is already taken.', 'error')
             return render_template('signup.html')
 
+        u = User.query.filter_by(email=email).first()
+        if u != None:
+            # Email already taken
+            flash('Email is already taken.', 'error')
+            return render_template('signup.html')
+
         try:
-            u = User.create_user(username=username, password=password)
+            u = User.create_user(
+                username=username, email=email, password=password)
             db.session.add(u)
             db.session.commit()
         except:
@@ -61,9 +81,11 @@ def login():
 
         u = User.query.filter_by(username=username).first()
         if u == None:
-            # No user found
-            flash('Username or password was incorrect.', 'error')
-            return render_template('login.html')
+            u = User.query.filter_by(email=username).first()
+            if u == None:
+                # No user found
+                flash('Username or password was incorrect.', 'error')
+                return render_template('login.html')
 
         if not u.validate(password):
             # Invalid password
